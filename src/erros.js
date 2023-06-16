@@ -12,7 +12,15 @@ class InternalServerError extends Error {
   }
 }
 
+class NotFoundError extends Error {
+  constructor(mensagem) {
+    super(mensagem);
+    this.name = "NotFoundError";
+  }
+}
+
 module.exports = {
   InvalidArgumentError: InvalidArgumentError,
-  InternalServerError: InternalServerError
+  InternalServerError: InternalServerError,
+  NotFoundError: NotFoundError
 };
