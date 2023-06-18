@@ -20,8 +20,7 @@ class AuthMiddleware {
       req.usuario = usuario;
       next();
     } catch (erro) {
-      console.log(erro);
-      return res.json(erro);
+      return res.status(400).json({ erro: erro.message });
     }
   }
 }
