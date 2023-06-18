@@ -2,6 +2,7 @@ const Usuario = require("./usuarios-modelo");
 const { InvalidArgumentError, InternalServerError } = require("../erros");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const blacklist = require("../redis/manipula-blacklist");
 
 module.exports = {
   adiciona: async (req, res) => {
@@ -34,12 +35,14 @@ module.exports = {
   },
 
   deleta: async (req, res) => {
-    const usuario = await Usuario.buscaPorId(req.params.id);
+    const usuario = req.usuario;
+
     try {
+      if (!usuario) throw new InternalServerError("Erro interno do servidor");
       await usuario.deleta();
-      res.status(200).send();
+      res.status(204).send();
     } catch (erro) {
-      res.status(500).json({ erro: erro });
+      res.status(500).json({ erro: erro.message });
     }
   },
 
@@ -53,6 +56,7 @@ module.exports = {
         );
 
       const usuario = await Usuario.buscaPorEmail(email);
+
       if (!usuario) throw new InvalidArgumentError("E-mail ou senha inválidos");
 
       const senhaValida = await bcrypt.compare(senha, usuario.senhaHash);
@@ -69,6 +73,17 @@ module.exports = {
       if (erro.name === "InvalidArgumentError")
         return res.status(400).json({ erro: erro.message });
       return res.status(500).json({ erro: erro.message });
+    }
+  },
+
+  desloga: async (req, res) => {
+    try {
+      const { token } = req;
+      await blacklist.adiciona(token);
+      return res.sendStatus(204);
+    } catch (erro) {
+      console.log(erro);
+      return res.status(500).json({ erro: erro });
     }
   }
 };

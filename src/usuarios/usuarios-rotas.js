@@ -8,6 +8,6 @@ module.exports = (app) => {
   app.use(AuthMiddleware.verificaToken);
 
   app.route("/usuario").get(usuariosControlador.lista);
-
-  app.route("/usuario/:id").delete(usuariosControlador.deleta);
+  app.route("/usuario/logout").get(usuariosControlador.desloga);
+  app.route("/usuario").delete(usuariosControlador.deleta);
 };
